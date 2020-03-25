@@ -9,17 +9,22 @@ namespace APBD3.DAL
 
         static MockDbService()
         {
-            _students = new List<Student>
-            {
-                new Student{IdStudent=1,FirstName="Maja",LastName="Maj" },
-                new Student{IdStudent=2,FirstName="Karolina",LastName="Koral" },
-                new Student{IdStudent=3,FirstName="Zosia",LastName="Wrzos" },
-            };
+
+        }
+
+        public void SetStudents(List<Student> students)
+        {
+            _students = students;
         }
 
         public IEnumerable<Student> GetStudents()
         {
             return _students;
+        }
+
+        public string GetStudies(Student student)
+        {
+            return student.Studies+" "+student.Semester;
         }
     }
 }
