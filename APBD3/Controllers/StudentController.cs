@@ -12,6 +12,10 @@ namespace APBD3.Controllers
     public class StudentController : ControllerBase
     {
 
+
+
+        /*  -----------------------------------------------CW3 i 4
+
         private readonly IDbService _dbService;
 
         public StudentController(IDbService dbService)
@@ -92,5 +96,8 @@ namespace APBD3.Controllers
         {
             return Ok("Usuwanie zakończone");
         }
+        */
     }
+
+   
 }

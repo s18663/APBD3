@@ -1,16 +1,16 @@
-﻿
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-using System;
-
-namespace APBD3.Models
+namespace APBD3.DTOs.Responses
 {
-    public class Student
-    {
+    public class EnrollStudentResponse
+    { 
         public string IndexNumber { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public DateTime BirthDate { get; set; }
         public string Studies { get; set; }
-
     }
 }
