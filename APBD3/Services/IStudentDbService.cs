@@ -1,4 +1,5 @@
 ﻿using APBD3.DTOs.Requests;
+using APBD3.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,6 @@ namespace APBD3.Services
     public interface IStudentDbService
     {
         int EnrollStudent(EnrollStudentRequest request);
-        void PromoteStudents(int semester, string studies);
+        int PromoteStudents(PromoteStudentRequest request);
     }
 }

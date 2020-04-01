@@ -22,7 +22,8 @@ namespace APBD3.Controllers
         {
             _service = service;
         }
-       
+        
+        [Route ("api/enrollments")]
         [HttpPost]
         public IActionResult EnrollStudent(EnrollStudentRequest request)
         {
@@ -39,5 +40,19 @@ namespace APBD3.Controllers
             }
             
         }
+
+        [Route("api/enrollments/promotions")]
+        [HttpPost]
+        public IActionResult PromoteStudent(PromoteStudentRequest request)
+        {
+            var result = _service.PromoteStudents(request);
+
+            if (result == -1)
+                return NotFound();
+            else
+
+
+        }
+        
     }
 }

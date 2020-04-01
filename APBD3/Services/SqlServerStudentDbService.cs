@@ -19,7 +19,7 @@ namespace APBD3.Services
 
             var response = new EnrollStudentResponse();
 
-            using (var con = new SqlConnection(""))
+            using (var con = new SqlConnection("Data Source=db-mssql;Initial Catalog=s18663;Integrated Security=True"))
             using (var com = new SqlCommand())
             {
 
@@ -84,9 +84,49 @@ namespace APBD3.Services
 
         }
 
-        public void PromoteStudents(int semester, string studies)
+        public int PromoteStudents(PromoteStudentRequest request)
         {
-            throw new NotImplementedException();
+            using (var con = new SqlConnection("Data Source=db-mssql;Initial Catalog=s18663;Integrated Security=True"))
+            using (var com = new SqlCommand())
+            {
+                con.Open();
+                com.Connection = con;
+
+                com.CommandText="select count(1) from enrollment join studies on enrollment.idstudy=studies.idstudy where studies.name=@study and enrollment.semester=@sem";
+                com.Parameters.AddWithValue("study", request.Studies);
+                com.Parameters.AddWithValue("sem", request.Semester);
+
+                var dr = com.ExecuteReader();
+                if (!dr.Read())
+                {
+                    return -1;
+                }
+                dr.Close();
+
+                com.CommandText = "Exec proc @study,@sem";
+                com.Parameters.AddWithValue("study", request.Studies);
+                com.Parameters.AddWithValue("sem", request.Semester);
+                com.ExecuteNonQuery();
+
+                com.CommandText = "select ISNULL(max(IdEnrollment)+1,0) from enrollment join studies on enrollment.idstudy=studies.idstudy where studies.name=@study and enrollment.semester=@sem";
+                com.Parameters.AddWithValue("study", request.Studies);
+                com.Parameters.AddWithValue("sem", request.Semester);
+                dr = com.ExecuteReader();
+                int idEnroll = (int)dr["ISNULL(max(IdEnrollment)+1,0)"];
+
+                dr = com.ExecuteReader();
+                if (!dr.Read()){
+                    return -1;
+                }
+
+                com.CommandText = "update enrollment set semester = @sem where idenrollment=@iden";
+                com.Parameters.AddWithValue("sem", request.Semester + 1);
+                com.Parameters.AddWithValue("iden", idEnroll);
+
+                return 1;
+            }
+
+
         }
     }
 }
