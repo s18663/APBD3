@@ -24,7 +24,12 @@ namespace APBD3.DAL
 
         public string GetStudies(Student student)
         {
-            return student.Studies+" "+student.Semester;
+            return student.Studies;//" "+student.Semester;
+        }
+
+        public bool CheckIndex(string index)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }
