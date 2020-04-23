@@ -1,17 +1,103 @@
 ﻿using APBD3.DTOs.Requests;
 using APBD3.DTOs.Responses;
 using APBD3.Models;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace APBD3.Services
 {
     public class SqlServerStudentDbService : IStudentDbService
     {
+        public void AddRefreshToken(Guid newToken, string login)
+        {
+            using (var con = new SqlConnection("Data Source=db-mssql;Initial Catalog=s18663;Integrated Security=True"))
+            using (var com = new SqlCommand())
+            {
+                con.Open();
+                com.Connection = con;
+
+                com.CommandText = "update Student set RefreshToken = @refresh where IndexNumber = @login";
+                com.Parameters.AddWithValue("refresh", newToken);
+                com.Parameters.AddWithValue("login", login);
+
+                var dr = com.ExecuteNonQuery();
+            }
+
+
+        }
+
+        public int CheckCred(LoginRequestcs request)
+        {
+            using (var con = new SqlConnection("Data Source=db-mssql;Initial Catalog=s18663;Integrated Security=True"))
+            using (var com = new SqlCommand())
+            {
+                con.Open();
+                com.Connection = con;
+
+                com.CommandText = "select Salt from Student where IndexNumber=@index";
+                com.Parameters.AddWithValue("index", request.login);
+
+                var dr = com.ExecuteReader();
+                dr.Read();
+                var salt = dr["Salt"].ToString();
+                dr.Close();
+
+                var valueBytes = KeyDerivation.Pbkdf2(
+                                    password: request.pass,
+                                    salt: Encoding.UTF8.GetBytes(salt),
+                                    prf: KeyDerivationPrf.HMACSHA512,
+                                    iterationCount: 10000,
+                                    numBytesRequested: 256 / 8);
+
+                string hash = Convert.ToBase64String(valueBytes);
+
+                com.Connection = con;
+                com.CommandText = "Select count(1) from Student where IndexNumber=@index and Pass=@pass";
+                com.Parameters.AddWithValue("index", request.login);
+                com.Parameters.AddWithValue("pass", hash);
+                dr = com.ExecuteReader();
+                int count = 0;
+                if (dr.Read())
+                {
+                    count = (int)dr.GetValue(0);
+                }
+
+                dr.Close();
+                return count;
+            }
+        }
+
+        public string CheckRefresh(string refresh)
+        {
+            using (var con = new SqlConnection("Data Source=db-mssql;Initial Catalog=s18663;Integrated Security=True"))
+            using (var com = new SqlCommand())
+            {
+                con.Open();
+                com.Connection = con;
+
+                com.CommandText = "select IndexNumber from Student where RefreshToken =@refreshToken";
+                com.Parameters.AddWithValue("refreshToken", refresh);
+
+                var dr = com.ExecuteReader();
+                string login = "";
+
+                if (dr.Read())
+                {
+                    login = dr["IndexNumber"].ToString();
+                }
+
+                dr.Close();
+                return login;
+
+            }
+        }
+
         public int EnrollStudent(EnrollStudentRequest request)
         {
             var st = new Student();

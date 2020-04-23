@@ -1,19 +1,88 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using APBD3.DAL;
+using APBD3.DTOs.Requests;
 using APBD3.Models;
+using APBD3.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 
 namespace APBD3.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/students")]
     public class StudentController : ControllerBase
     {
+        public IConfiguration Configuration { get; set; }
+        public IStudentDbService _dbService;
 
+        public StudentController(IConfiguration configuration,IStudentDbService dbService)
+        {
+            Configuration = configuration;
+            _dbService = dbService;
+        }
 
+        [HttpPost("login")]
+        [AllowAnonymous]
+        public IActionResult Login(LoginRequestcs request)
+        {
 
+            if (_dbService.CheckCred(request) <= 0)
+            {
+                return Unauthorized();
+            }
+
+            return Ok(CreateToken(request.login));
+        }
+
+        [HttpPost("refreshToken/{refreshToken}")]
+        [AllowAnonymous]
+        public IActionResult RefreshToken(string refresh)
+        {
+            string login = _dbService.CheckRefresh(refresh);
+            if (login == "") return Unauthorized();
+            return Ok(CreateToken(login));
+        }
+
+        public  object CreateToken(string login)
+        {
+
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.Name,login),
+                new Claim(ClaimTypes.Role,"student")
+            };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["SecretKey"]));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: "s18663",
+                audience: "Students",
+                claims: claims,
+                expires: DateTime.Now.AddMinutes(10),
+                signingCredentials: creds
+                );
+
+            var refToken = Guid.NewGuid();
+            
+
+            return new
+            {
+                token = new JwtSecurityTokenHandler().WriteToken(token),
+                refreshToken = Guid.NewGuid()//
+            };
+
+        }
+
+       
         /*  -----------------------------------------------CW3 i 4
 
         private readonly IDbService _dbService;

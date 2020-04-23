@@ -10,6 +10,9 @@ namespace APBD3.Services
 {
     public interface IStudentDbService
     {
+        void AddRefreshToken(Guid newToken,string login);
+        string CheckRefresh(string refresh);
+        int CheckCred(LoginRequestcs request);
         int EnrollStudent(EnrollStudentRequest request);
         int PromoteStudents(PromoteStudentRequest request);
     }
