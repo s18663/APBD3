@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using APBD3.DAL;
 using APBD3.Middlewares;
+using APBD3.Models;
 using APBD3.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -36,6 +37,12 @@ namespace APBD3
         {
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
             {
+                services.AddScoped<IStudentDbService, ContextStudentDbService>();
+                services.AddDbContext<DBStudentContext>(options =>
+                {
+                    options.UseSqlServer("Data source=db-mssql;Initial Catalog=s18536;Integrated Security=True");
+                });
+                /*
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
@@ -48,7 +55,9 @@ namespace APBD3
             }
             );
             services.AddTransient<IDbServ,DbService>();
-            services.AddControllers();
+            */
+                services.AddControllers();
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace APBD3.Services
 {
-    public class SqlServerStudentDbService : IStudentDbService
+    public class SqlServerStudentDbService //: IStudentDbService
     {
         public void AddRefreshToken(Guid newToken, string login)
         {

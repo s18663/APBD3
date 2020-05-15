@@ -9,6 +9,7 @@ using APBD3.DTOs.Requests;
 using APBD3.Models;
 using APBD3.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -16,10 +17,94 @@ using Microsoft.IdentityModel.Tokens;
 namespace APBD3.Controllers
 {
     [ApiController]
-    [Authorize]
+    //[Authorize]
     [Route("api/students")]
     public class StudentController : ControllerBase
     {
+
+        private readonly IStudentDbService _context;
+
+        public StudentController(IStudentDbService context)
+        {
+            _context = context;
+        }
+
+
+        [HttpGet]
+        public IActionResult GetStudents()
+        {
+            try
+            {
+                return Ok(_context.GetStudents());
+            }
+            catch
+            {
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
+        }
+
+        [HttpPost]
+        public IActionResult ModifyStudent(Student student)
+        {
+            try
+            {
+                _context.ModifyStudent(student);
+                return Ok();
+            }
+            catch
+            {
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
+        }
+
+        [HttpDelete]
+        public IActionResult RemoveStudent(Student student)
+        {
+            try
+            {
+                _context.RemoveStudent(student);
+                return Ok();
+            }
+            catch
+            {
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
+        }
+
+
+        [Route("enroll")]
+        [HttpPost]
+        public IActionResult EnrollStudent(Student student)
+        {
+            try
+            {
+                _context.EnrollStudent(student);
+                return Ok();
+            }
+            catch
+            {
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
+        }
+
+        [Route("promote")]
+        [HttpPost]
+        public IActionResult PromoteStudents(Enrollment enrollment)
+        {
+            try
+            {
+                _context.PromoteStudents(enrollment);
+                return Ok();
+            }
+            catch
+            {
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
+        }
+
+
+
+        /*
         public IConfiguration Configuration { get; set; }
         public IStudentDbService _dbService;
 
@@ -168,5 +253,5 @@ namespace APBD3.Controllers
         */
     }
 
-   
+
 }
